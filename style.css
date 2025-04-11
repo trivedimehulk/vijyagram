@@ -1,0 +1,67 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: sans-serif;
+  }
+  
+  #map {
+    height: 100%;
+    width: 100%;
+  }
+  
+  #cameraButton {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  #photoModal {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  
+  #photoModal img {
+    max-width: 90%;
+    margin-bottom: 10px;
+  }
+  
+  #photoModal input {
+    padding: 10px;
+    width: 80%;
+    margin-bottom: 10px;
+  }
+  
+  #usernamePrompt {
+    position: absolute;
+    z-index: 9999;
+    background: white;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #usernamePrompt input {
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  

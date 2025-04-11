@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Photo Map App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Prompt for username -->
+  <div id="usernamePrompt">
+    <h2>Enter your name to start</h2>
+    <input type="text" id="usernameInput" placeholder="Your name">
+    <button onclick="saveUsername()">Start</button>
+  </div>
+
+  <!-- Google Map -->
+  <div id="map"></div>
+
+  <!-- Camera button -->
+  <button id="cameraButton">📷 Capture Photo</button>
+  <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+
+  <!-- Modal for photo preview -->
+  <div id="photoModal">
+    <img id="photoPreview" src="">
+    <input type="text" id="photoDescription" placeholder="Enter description...">
+    <button onclick="uploadPhoto()">Done</button>
+    <button onclick="cancelUpload()">Cancel</button>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+  <script src="script.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap"></script>
+
+</body>
+</html>
