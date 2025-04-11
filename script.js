@@ -1,7 +1,7 @@
 let map;
 let currentUser = "";
 let currentLat = 0, currentLng = 0;
-let selectedFile;
+let selectedBase64 = "";
 
 function saveUsername() {
   const input = document.getElementById("usernameInput");
@@ -30,11 +30,11 @@ function initMap() {
   document.getElementById("cameraInput").addEventListener("change", e => {
     const file = e.target.files[0];
     if (!file) return;
-    selectedFile = file;
 
     const reader = new FileReader();
     reader.onload = () => {
-      document.getElementById("photoPreview").src = reader.result;
+      selectedBase64 = reader.result;
+      document.getElementById("photoPreview").src = selectedBase64;
       document.getElementById("photoModal").style.display = "flex";
     };
     reader.readAsDataURL(file);
@@ -43,20 +43,15 @@ function initMap() {
 
 function uploadPhoto() {
   const desc = document.getElementById("photoDescription").value;
-  if (!selectedFile || !currentUser) return;
+  if (!selectedBase64 || !currentUser) return;
 
-  const photoRef = storage.ref().child("photos/" + Date.now() + "-" + selectedFile.name);
-  photoRef.put(selectedFile).then(snapshot => {
-    return snapshot.ref.getDownloadURL();
-  }).then(url => {
-    return db.collection("photos").add({
-      user: currentUser,
-      description: desc,
-      lat: currentLat,
-      lng: currentLng,
-      photoUrl: url,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
+  db.collection("photos").add({
+    user: currentUser,
+    description: desc,
+    lat: currentLat,
+    lng: currentLng,
+    base64: selectedBase64,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
     document.getElementById("photoModal").style.display = "none";
     document.getElementById("photoDescription").value = "";
@@ -70,7 +65,7 @@ function cancelUpload() {
 }
 
 function loadExistingPhotos() {
-  db.collection("photos").get().then(snapshot => {
+  db.collection("photos").orderBy("timestamp", "desc").get().then(snapshot => {
     snapshot.forEach(doc => {
       const data = doc.data();
       const marker = new google.maps.Marker({
@@ -80,7 +75,11 @@ function loadExistingPhotos() {
       });
 
       const info = new google.maps.InfoWindow({
-        content: `<p><strong>${data.user}</strong></p><p>${data.description}</p><img src="${data.photoUrl}" width="200">`
+        content: `
+          <strong>${data.user}</strong><br>
+          ${data.description}<br>
+          <img src="${data.base64}" width="200">
+        `
       });
 
       marker.addListener("click", () => {
