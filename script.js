@@ -4,14 +4,15 @@ let currentLat = 0, currentLng = 0;
 let selectedBase64 = "";
 
 function saveUsername() {
-  const input = document.getElementById("usernameInput");
-  if (input.value.trim()) {
-    currentUser = input.value.trim();
-    document.getElementById("usernamePrompt").style.display = "none";
-    initMap(); // Initialize map after username is set
+    const input = document.getElementById("usernameInput");
+    if (input.value.trim()) {
+      currentUser = input.value.trim();
+      document.getElementById("usernamePrompt").style.display = "none";
+      document.getElementById("cameraWrapper").style.display = "block"; // ✅ Show button now
+      initMap(); // Initialize map after username is set
+    }
   }
-}
-
+  
 window.initMap = function () {
   navigator.geolocation.getCurrentPosition(pos => {
     currentLat = pos.coords.latitude;
@@ -28,6 +29,9 @@ window.initMap = function () {
   });
 
   document.getElementById("cameraInput").addEventListener("change", e => {
+    document.getElementById("photoModal").style.display = "flex";
+document.getElementById("cameraWrapper").style.display = "none"; // ✅ Hide camera button
+
     const file = e.target.files[0];
     if (!file) return;
 
@@ -42,6 +46,9 @@ window.initMap = function () {
 }
 
 function uploadPhoto() {
+    document.getElementById("photoModal").style.display = "none";
+document.getElementById("cameraWrapper").style.display = "block"; // ✅ Show again
+
   const desc = document.getElementById("photoDescription").value;
   if (!selectedBase64 || !currentUser) return;
 
@@ -61,6 +68,9 @@ function uploadPhoto() {
 }
 
 function cancelUpload() {
+    document.getElementById("photoModal").style.display = "none";
+document.getElementById("cameraWrapper").style.display = "block"; // ✅ Show again
+
   document.getElementById("photoModal").style.display = "none";
 }
 
