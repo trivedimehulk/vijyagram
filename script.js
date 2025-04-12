@@ -12,7 +12,7 @@ function saveUsername() {
   }
 }
 
-function initMap() {
+window.initMap = function () {
   navigator.geolocation.getCurrentPosition(pos => {
     currentLat = pos.coords.latitude;
     currentLng = pos.coords.longitude;
