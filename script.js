@@ -12,6 +12,25 @@ function saveUsername() {
       initMap(); // Initialize map after username is set
     }
   }
+
+
+  function compressImage(base64Str, quality = 0.6, callback) {
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxWidth = 800; // Resize target
+      const scaleSize = maxWidth / img.width;
+      canvas.width = maxWidth;
+      canvas.height = img.height * scaleSize;
+  
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  
+      const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+      callback(compressedDataUrl);
+    };
+  }
   
 window.initMap = function () {
   navigator.geolocation.getCurrentPosition(pos => {
@@ -37,10 +56,13 @@ document.getElementById("cameraWrapper").style.display = "none"; // ✅ Hide cam
 
     const reader = new FileReader();
     reader.onload = () => {
-      selectedBase64 = reader.result;
-      document.getElementById("photoPreview").src = selectedBase64;
-      document.getElementById("photoModal").style.display = "flex";
-    };
+        compressImage(reader.result, 0.5, (compressedBase64) => {
+          selectedBase64 = compressedBase64;
+          document.getElementById("photoPreview").src = compressedBase64;
+          document.getElementById("photoModal").style.display = "flex";
+          document.getElementById("cameraWrapper").style.display = "none";
+        });
+      };      
     reader.readAsDataURL(file);
   });
 }
