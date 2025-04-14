@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Photo Map App</title>
-  <link rel="stylesheet" href="style.css?v=5.0">
+  <link rel="stylesheet" href="style.css?v=6.0">
 </head>
 <body>
 
@@ -18,15 +18,25 @@
   <!-- Google Map -->
   
     
-    <div id="map"></div>
+    
+  <div id="map"></div>
+   
   
+    
   
 
   <!-- Camera button -->
   <div id="cameraWrapper" style="display: none;">
     <button id="cameraButton">📷</button>
+    <button id="hoverSearchToggle" title="Toggle search">🔍</button>
+  <input type="text" id="hoverSearchInput" placeholder="Type something..." />
   </div>
+
+  
   <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden />
+
+ 
+
 
   <!-- Modal for photo preview -->
   <div id="photoModal">
@@ -36,6 +46,8 @@
     <button onclick="cancelUpload()">Cancel</button>
   </div>
 
+ 
+  
   
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>

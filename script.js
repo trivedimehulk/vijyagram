@@ -205,9 +205,35 @@ document.getElementById("cameraWrapper").style.display = "block"; // ✅ Show ag
   }).then(() => {
     document.getElementById("photoModal").style.display = "none";
     document.getElementById("photoDescription").value = "";
-    alert("Photo uploaded!");
-    loadExistingPhotos();
+    //alert("Photo uploaded!");
+    //loadExistingPhotos();
+    // ✅ Add marker right away
+  const marker = new google.maps.Marker({
+    position: { lat, lng },
+    map: map,
+    title: `${user}: ${description}`,
+    animation: google.maps.Animation.DROP // 🎯 the animation!
   });
+
+  const info = new google.maps.InfoWindow({
+    content: `
+      <strong>${user}</strong><br>
+      ${description}<br>
+      <img src="${base64}" width="200">
+    `
+  });
+
+  marker.addListener("click", () => info.open(map, marker));
+  
+
+  // ✅ Optionally pan to the marker
+  map.panTo({ lat, lng });
+  });
+
+  // ✅ Stop bounce after 1.5 seconds
+setTimeout(() => {
+  marker.setAnimation(null);
+}, 1500);
 }
 
 function cancelUpload() {
@@ -358,6 +384,8 @@ function loadAllPhotosUnfiltered1() {
   }
   
   
-  
-  
+  document.getElementById("hoverSearchToggle").addEventListener("click", () => {
+    const input = document.getElementById("hoverSearchInput");
+    input.style.display = input.style.display === "none" || input.style.display === "" ? "inline-block" : "none";
+  });
   
