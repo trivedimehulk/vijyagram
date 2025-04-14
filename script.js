@@ -1,8 +1,15 @@
+let renderedMarkers = new Set();
 let map;
 let currentUser = "";
 let currentLat = 0, currentLng = 0;
 let selectedBase64 = "";
 
+function openDirections(lat, lng) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, '_blank');
+  }
+
+  
 function saveUsername() {
     const input = document.getElementById("usernameInput");
     if (input.value.trim()) {
@@ -40,7 +47,23 @@ window.initMap = function () {
       center: { lat: currentLat, lng: currentLng },
       zoom: 13
     });
-    loadExistingPhotos();
+
+    // 🟢 On initial load
+google.maps.event.addListenerOnce(map, 'idle', () => {
+    loadPhotosInBounds(map.getBounds());
+    //loadAllPhotosUnfiltered();
+  });
+  
+  // 🔄 On map move or zoom
+  google.maps.event.addListener(map, 'dragend', () => {
+    loadPhotosInBounds(map.getBounds());
+  });
+  
+  google.maps.event.addListener(map, 'zoom_changed', () => {
+    loadPhotosInBounds(map.getBounds());
+  });
+
+    
   });
 
   document.getElementById("cameraButton").addEventListener("click", () => {
@@ -95,28 +118,164 @@ document.getElementById("cameraWrapper").style.display = "block"; // ✅ Show ag
 
   document.getElementById("photoModal").style.display = "none";
 }
-
-function loadExistingPhotos() {
-  db.collection("photos").orderBy("timestamp", "desc").get().then(snapshot => {
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const marker = new google.maps.Marker({
-        position: { lat: data.lat, lng: data.lng },
-        map: map,
-        title: `${data.user}: ${data.description}`
+function loadAllPhotosUnfiltered() {
+    console.log("🚀 Fetching all photos from Firestore...");
+  
+    db.collection("photos").get().then(snapshot => {
+      console.log(`📸 Found ${snapshot.size} documents`);
+  
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        console.log("🔍 Document data:", data);
+  
+        if (!data.lat || !data.lng) {
+          console.warn("❌ Skipping - missing lat/lng");
+          return;
+        }
+  
+        const markerKey = `${data.lat.toFixed(5)}|${data.lng.toFixed(5)}`;
+        if (renderedMarkers.has(markerKey)) {
+          console.log("⏭️ Skipping duplicate marker", markerKey);
+          return;
+        }
+  
+        renderedMarkers.add(markerKey);
+  
+        const marker = new google.maps.Marker({
+          position: { lat: data.lat, lng: data.lng },
+          map: map,
+          title: `${data.user}: ${data.description}`
+        });
+  
+        const info = new google.maps.InfoWindow({
+            content: `
+              <div style="max-width:250px;">
+                <strong>${data.user}</strong><br>
+                ${data.description}<br>
+                <img src="${data.base64}" width="100%" style="margin:8px 0;"><br>
+                <button onclick="openDirections(${data.lat}, ${data.lng})"
+                        style="background:#1976d2;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;">
+                  🧭
+                </button>
+              </div>
+            `
+          });
+          
+  
+        marker.addListener("click", () => info.open(map, marker));
+  
+        console.log("✅ Marker added:", markerKey);
       });
-
-      const info = new google.maps.InfoWindow({
-        content: `
-          <strong>${data.user}</strong><br>
-          ${data.description}<br>
-          <img src="${data.base64}" width="200">
-        `
-      });
-
-      marker.addListener("click", () => {
-        info.open(map, marker);
-      });
+    }).catch(err => {
+      console.error("❌ Firestore error:", err);
     });
+  }
+  
+function loadAllPhotosUnfiltered1() {
+    db.collection("photos").get().then(snapshot => {
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (!data.lat || !data.lng) return;
+  
+        const markerKey = `${data.lat.toFixed(5)}|${data.lng.toFixed(5)}`;
+        if (renderedMarkers.has(markerKey)) return;
+  
+        renderedMarkers.add(markerKey);
+  
+        const marker = new google.maps.Marker({
+          position: { lat: data.lat, lng: data.lng },
+          map: map,
+          title: `${data.user}: ${data.description}`
+        });
+  
+        const info = new google.maps.InfoWindow({
+          content: `
+            <strong>${data.user}</strong><br>
+            ${data.description}<br>
+            <img src="${data.base64}" width="200">
+          `
+        });
+  
+        marker.addListener("click", () => info.open(map, marker));
+      });
+      console.log("✅ Markers loaded:", renderedMarkers.size);
+    });
+  }
+
+  
+  function loadPhotosInBounds(bounds) {
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+  
+    db.collection("photos")
+      .where("lat", ">=", sw.lat())
+      .where("lat", "<=", ne.lat())
+      .get()
+      .then(snapshot => {
+        console.log(`🧭 Checking bounds: NE (${ne.lat()}, ${ne.lng()}) | SW (${sw.lat()}, ${sw.lng()})`);
+        console.log(`📸 Found ${snapshot.size} potential matches`);
+  
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          if (!data.lat || !data.lng) return;
+  
+          // Check if lng is in bounds too
+          if (
+            data.lng < Math.min(sw.lng(), ne.lng()) ||
+            data.lng > Math.max(sw.lng(), ne.lng())
+          ) return;
+  
+          const markerKey = `${data.lat.toFixed(5)}|${data.lng.toFixed(5)}`;
+          if (renderedMarkers.has(markerKey)) return;
+  
+          renderedMarkers.add(markerKey);
+  
+          const marker = new google.maps.Marker({
+            position: { lat: data.lat, lng: data.lng },
+            map: map,
+            title: `${data.user}: ${data.description}`
+          });
+  
+          const info = new google.maps.InfoWindow({
+            content: `
+              <div style="max-width:250px;">
+                <strong>${data.user}</strong><br>
+                ${data.description}<br>
+                <img src="${data.base64}" width="100%" style="margin:8px 0;"><br>
+                <button onclick="openDirections(${data.lat}, ${data.lng})"
+                        style="background:#1976d2;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;">
+                  🧭
+                </button>
+              </div>
+            `
+          });
+          
+  
+          marker.addListener("click", () => info.open(map, marker));
+  
+          console.log("✅ Marker added:", markerKey);
+        });
+      })
+      .catch(err => console.error("🔥 Firestore query error:", err));
+  }
+  
+  
+  
+  document.getElementById("locationSearch").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+      const query = e.target.value;
+      if (!query) return;
+  
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address: query }, function(results, status) {
+        if (status === "OK" && results[0]) {
+          const location = results[0].geometry.location;
+          map.setCenter(location);
+          map.setZoom(13); // adjust as needed
+        } else {
+          alert("Location not found: " + status);
+        }
+      });
+    }
   });
-}
+  

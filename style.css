@@ -126,3 +126,18 @@ html, body {
     border: none;
     cursor: pointer;
   }
+
+  #locationSearch {
+    position: absolute;
+    top: 45px; /* just under Map/Satellite toggle */
+    left: 10px;
+    width: 230px;
+    padding: 8px 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+  }
+  
