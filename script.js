@@ -68,33 +68,58 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
 
   
   document.getElementById("cameraButton").addEventListener("click", () => {
-    document.getElementById("cameraInput").click();
+    alert("📸 Capture button clicked");
+    const input = document.getElementById("cameraInput");
+    input.value = ""; // ✅ clear previous photo
+    input.click();
   });
   
-  document.getElementById("cameraInput").addEventListener("change", (e) => {
+  document.getElementById("cameraInput").addEventListener("change", async (e) => {
+    alert("📂 File selected");
+  
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      alert("⚠️ No file found in input");
+      return;
+    }
   
-    const reader = new FileReader();
+    try {
+      alert("🔄 Reading file as base64...");
+      const base64 = await readFileAsDataURL(file);
+      alert("✅ File read complete. Compressing...");
   
-    reader.onload = () => {
-      compressImage(reader.result, 0.5, (compressedBase64) => {
+      compressImage(base64, 0.5, (compressedBase64) => {
+        alert("✅ Compression done. Showing modal...");
+  
         selectedBase64 = compressedBase64;
   
-        // ✅ Set preview image
         document.getElementById("photoPreview").src = compressedBase64;
-  
-        // ✅ Show modal only after image is ready
         document.getElementById("photoModal").style.display = "flex";
-  
-        // ✅ Hide capture button wrapper
         document.getElementById("cameraWrapper").style.display = "none";
       });
-    };
   
-    // ✅ Read file only after reader is fully set up
-    reader.readAsDataURL(file);
+    } catch (err) {
+      alert("❌ File read failed: " + err.message);
+      console.error("File reading failed:", err);
+    }
   });
+  
+  // Helper to convert file to base64 string
+  function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        alert("📄 Reader loaded the image");
+        resolve(reader.result);
+      };
+      reader.onerror = (err) => {
+        alert("❌ Reader error");
+        reject(err);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  
   
 
   /*
