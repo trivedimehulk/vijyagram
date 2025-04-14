@@ -230,6 +230,13 @@ document.getElementById("cameraWrapper").style.display = "block"; // ✅ Show ag
   map.panTo({ lat, lng });
   });
 
+  // 🔄 Force map to move slightly to trigger re-render
+const currentCenter = map.getCenter();
+map.panTo({
+  lat: currentCenter.lat() + 0.00001,
+  lng: currentCenter.lng()
+});
+
   // ✅ Stop bounce after 1.5 seconds
 setTimeout(() => {
   marker.setAnimation(null);
