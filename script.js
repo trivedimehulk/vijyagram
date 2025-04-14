@@ -70,9 +70,50 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
   document.getElementById("cameraButton").addEventListener("click", () => {
     alert("📸 Capture button clicked");
     const input = document.getElementById("cameraInput");
-    input.value = ""; // ✅ clear previous photo
-    input.click();
+    
+    alert('resetting for ios')
+    // Force-reset input so iOS Safari re-triggers 'change' reliably
+  const newInput = input.cloneNode();
+  input.replaceWith(newInput);
+  newInput.id = "cameraInput"; // re-assign the ID
+
+  // Attach the change listener again
+  newInput.addEventListener("change", onCameraInputChange);
+  
+  alert('trying to auto click - propogate -> oncaminputchange fn')
+  newInput.click();
+    
   });
+  
+  async function onCameraInputChange(e) {
+    alert("📂 File selected");
+  
+    const file = e.target.files[0];
+    if (!file) {
+      alert("⚠️ No file found in input");
+      return;
+    }
+  
+    try {
+      alert("🔄 Reading file as base64...");
+      const base64 = await readFileAsDataURL(file);
+      alert("✅ File read complete. Compressing...");
+  
+      compressImage(base64, 0.5, (compressedBase64) => {
+        alert("✅ Compression done. Showing modal...");
+  
+        selectedBase64 = compressedBase64;
+  
+        document.getElementById("photoPreview").src = compressedBase64;
+        document.getElementById("photoModal").style.display = "flex";
+        document.getElementById("cameraWrapper").style.display = "none";
+      });
+  
+    } catch (err) {
+      alert("❌ File read failed: " + err.message);
+    }
+  }
+
   
   document.getElementById("cameraInput").addEventListener("change", async (e) => {
     alert("📂 File selected");
