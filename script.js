@@ -68,10 +68,10 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
 
   
   document.getElementById("cameraButton").addEventListener("click", () => {
-    alert("📸 Capture button clicked");
+    //alert("📸 Capture button clicked");
     const input = document.getElementById("cameraInput");
     
-    alert('resetting for ios')
+    //alert('resetting for ios')
     // Force-reset input so iOS Safari re-triggers 'change' reliably
   const newInput = input.cloneNode();
   input.replaceWith(newInput);
@@ -80,27 +80,27 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
   // Attach the change listener again
   newInput.addEventListener("change", onCameraInputChange);
   
-  alert('trying to auto click - propogate -> oncaminputchange fn')
+  //alert('trying to auto click - propogate -> oncaminputchange fn')
   newInput.click();
     
   });
   
   async function onCameraInputChange(e) {
-    alert("📂 File selected");
+    //alert("📂 File selected");
   
     const file = e.target.files[0];
     if (!file) {
-      alert("⚠️ No file found in input");
+      //alert("⚠️ No file found in input");
       return;
     }
   
     try {
-      alert("🔄 Reading file as base64...");
+      //alert("🔄 Reading file as base64...");
       const base64 = await readFileAsDataURL(file);
-      alert("✅ File read complete. Compressing...");
+      //alert("✅ File read complete. Compressing...");
   
       compressImage(base64, 0.5, (compressedBase64) => {
-        alert("✅ Compression done. Showing modal...");
+        //alert("✅ Compression done. Showing modal...");
   
         selectedBase64 = compressedBase64;
   
@@ -110,27 +110,27 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
       });
   
     } catch (err) {
-      alert("❌ File read failed: " + err.message);
+      //alert("❌ File read failed: " + err.message);
     }
   }
 
   
   document.getElementById("cameraInput").addEventListener("change", async (e) => {
-    alert("📂 File selected");
+    //alert("📂 File selected");
   
     const file = e.target.files[0];
     if (!file) {
-      alert("⚠️ No file found in input");
+      //alert("⚠️ No file found in input");
       return;
     }
   
     try {
-      alert("🔄 Reading file as base64...");
+      //alert("🔄 Reading file as base64...");
       const base64 = await readFileAsDataURL(file);
-      alert("✅ File read complete. Compressing...");
+      //alert("✅ File read complete. Compressing...");
   
       compressImage(base64, 0.5, (compressedBase64) => {
-        alert("✅ Compression done. Showing modal...");
+        //alert("✅ Compression done. Showing modal...");
   
         selectedBase64 = compressedBase64;
   
@@ -140,7 +140,7 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
       });
   
     } catch (err) {
-      alert("❌ File read failed: " + err.message);
+      //alert("❌ File read failed: " + err.message);
       console.error("File reading failed:", err);
     }
   });
@@ -150,11 +150,11 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
-        alert("📄 Reader loaded the image");
+        //alert("📄 Reader loaded the image");
         resolve(reader.result);
       };
       reader.onerror = (err) => {
-        alert("❌ Reader error");
+        //alert("❌ Reader error");
         reject(err);
       };
       reader.readAsDataURL(file);
