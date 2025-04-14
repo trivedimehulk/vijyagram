@@ -66,6 +66,38 @@ google.maps.event.addListenerOnce(map, 'idle', () => {
     
   });
 
+  
+  document.getElementById("cameraButton").addEventListener("click", () => {
+    document.getElementById("cameraInput").click();
+  });
+  
+  document.getElementById("cameraInput").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    const reader = new FileReader();
+  
+    reader.onload = () => {
+      compressImage(reader.result, 0.5, (compressedBase64) => {
+        selectedBase64 = compressedBase64;
+  
+        // ✅ Set preview image
+        document.getElementById("photoPreview").src = compressedBase64;
+  
+        // ✅ Show modal only after image is ready
+        document.getElementById("photoModal").style.display = "flex";
+  
+        // ✅ Hide capture button wrapper
+        document.getElementById("cameraWrapper").style.display = "none";
+      });
+    };
+  
+    // ✅ Read file only after reader is fully set up
+    reader.readAsDataURL(file);
+  });
+  
+
+  /*
   document.getElementById("cameraButton").addEventListener("click", () => {
     document.getElementById("cameraInput").click();
   });
@@ -87,7 +119,7 @@ document.getElementById("cameraWrapper").style.display = "none"; // ✅ Hide cam
         });
       };      
     reader.readAsDataURL(file);
-  });
+  }); */
 }
 
 function uploadPhoto() {
@@ -261,21 +293,5 @@ function loadAllPhotosUnfiltered1() {
   
   
   
-  document.getElementById("locationSearch").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-      const query = e.target.value;
-      if (!query) return;
   
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ address: query }, function(results, status) {
-        if (status === "OK" && results[0]) {
-          const location = results[0].geometry.location;
-          map.setCenter(location);
-          map.setZoom(13); // adjust as needed
-        } else {
-          alert("Location not found: " + status);
-        }
-      });
-    }
-  });
   
