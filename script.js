@@ -206,7 +206,7 @@ document.getElementById("cameraWrapper").style.display = "block"; // ✅ Show ag
     document.getElementById("photoModal").style.display = "none";
     document.getElementById("photoDescription").value = "";
     //alert("Photo uploaded!");
-    //loadExistingPhotos();
+    loadPhotosInBounds(map.getBounds());
     // ✅ Add marker right away
   const marker = new google.maps.Marker({
     position: { lat, lng },
